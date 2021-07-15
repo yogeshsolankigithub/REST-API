@@ -20,7 +20,10 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yogesh.app.ws.SpringApplicationContext;
+import com.yogesh.app.ws.service.UserService;
 import com.yogesh.app.ws.service.impl.UserServiceImpl;
+import com.yogesh.app.ws.shared.dto.UserDto;
 import com.yogesh.app.ws.ui.model.request.UserLoginRequestModel;
 
 import io.jsonwebtoken.Jwts;
@@ -51,17 +54,21 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 		}
 	}
 
-	// on successful authentication this method will be called automatically by
-	// spring
+	// on successful authentication this method will be called automatically by spring
 	@Override
 	protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
 			Authentication authResult) throws IOException, ServletException {
 		logger.info("Authentication Filter called with successful authentication");
 		String userName = ((User) authResult.getPrincipal()).getUsername();
+
 		String token = Jwts.builder().setSubject(userName)
 				.setExpiration(new Date(System.currentTimeMillis() + SecurityConstants.EXPIRATION_TIME))
 				.signWith(SignatureAlgorithm.HS512, SecurityConstants.TOKEN_SECRET).compact();
+		UserService userService = (UserService) SpringApplicationContext.getBeans("userServiceImpl");
+		UserDto userDto = userService.getUser(userName);
+
 		response.addHeader(SecurityConstants.HEADER_STRING, SecurityConstants.TOKEN_PREFIX + token);
+		response.addHeader("USERID", userDto.getUserId());
 	}
 
 }
