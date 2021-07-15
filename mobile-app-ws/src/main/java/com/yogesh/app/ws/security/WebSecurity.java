@@ -17,8 +17,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter{
 	private final BCryptPasswordEncoder bCryptPasswordEncoder;
 	
 	
-	
-	
+
 	public WebSecurity(UserService userService, BCryptPasswordEncoder bCryptPasswordEncoder) {
 		
 		this.userService = userService;
@@ -37,8 +36,15 @@ public class WebSecurity extends WebSecurityConfigurerAdapter{
 		.authorizeRequests().antMatchers(HttpMethod.POST, SecurityConstants.SIGN_UP_URL)
 		.permitAll()
 		.anyRequest().authenticated()
-		.and().addFilter(new AuthenticationFilter(authenticationManager()));
+		.and().addFilter(getAuthenticationFilter());
 		
+	}
+	
+	public AuthenticationFilter getAuthenticationFilter() throws Exception
+	{
+		final AuthenticationFilter filter=new AuthenticationFilter(authenticationManager());
+		filter.setFilterProcessesUrl("/users/login");
+		return filter;
 	}
 	
 	
