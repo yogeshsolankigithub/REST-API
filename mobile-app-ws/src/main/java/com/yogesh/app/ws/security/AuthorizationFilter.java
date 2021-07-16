@@ -32,7 +32,7 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
 		
 		if (header == null || !header.startsWith(SecurityConstants.TOKEN_PREFIX)) {
 			chain.doFilter(request, response);
-			return ;
+			return;
 		}
 		UsernamePasswordAuthenticationToken authenctication=getAuthentication(request);
 		SecurityContextHolder.getContext().setAuthentication(authenctication);
@@ -46,7 +46,7 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
 		{
 			token=token.replace(SecurityConstants.TOKEN_PREFIX, "");
 			String user=Jwts.parser()
-						.setSigningKey(SecurityConstants.TOKEN_SECRET)
+						.setSigningKey(SecurityConstants.getTokenSecrte())
 						.parseClaimsJws(token)
 						.getBody()
 						.getSubject();
@@ -55,6 +55,7 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
 			{
 				return new UsernamePasswordAuthenticationToken(user, null, new ArrayList<>());
 			}
+			return null;
 		}
 		return null;
 	}
