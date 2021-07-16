@@ -25,35 +25,32 @@ public class UserController {
 	Logger logger = LoggerFactory.getLogger(UserController.class);
 	@Autowired
 	private UserService userService;
-	
+
 	@GetMapping
-	public String getUser()
-	{
+	public String getUser() {
 		return "get user api called";
 	}
 
 	@PostMapping
-	public UserRest createUser(@RequestBody UserDetailsRequestModel userDetails) throws JsonProcessingException
-	{
-		UserRest returnValue=new UserRest();//to return the value
-		UserDto userDto=new UserDto();//to transfer the user
-		
-		BeanUtils.copyProperties(userDetails, userDto);//(source,target)
-		UserDto createdUser=userService.createUser(userDto);
+	public UserRest createUser(@RequestBody UserDetailsRequestModel userDetails) throws JsonProcessingException {
+		UserRest returnValue = new UserRest();// to return the value
+		UserDto userDto = new UserDto();// to transfer the user
+
+		BeanUtils.copyProperties(userDetails, userDto);// (source,target)
+		UserDto createdUser = userService.createUser(userDto);
 		BeanUtils.copyProperties(createdUser, returnValue);
-		logger.info("Return Value="+new ObjectMapper().writeValueAsString(returnValue));
+		logger.info("Return Value=" + new ObjectMapper().writeValueAsString(returnValue));
 		return returnValue;
 	}
-	
+
 	@PutMapping
-	public String updateUser()
-	{
+	public String updateUser() {
 		return "update user called";
 	}
+
 	@DeleteMapping
-	public String deleteUser()
-	{
+	public String deleteUser() {
 		return "delete user called";
 	}
-	
+
 }
