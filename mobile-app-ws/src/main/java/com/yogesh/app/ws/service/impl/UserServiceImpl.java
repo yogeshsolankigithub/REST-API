@@ -1,11 +1,19 @@
 package com.yogesh.app.ws.service.impl;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import com.fasterxml.jackson.databind.BeanProperty;
+import com.yogesh.app.ws.exceptions.UserServiceException;
+import com.yogesh.app.ws.ui.model.response.ErrorMessages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -82,6 +90,47 @@ public class UserServiceImpl implements UserService {
 		UserDto userDto2 = new UserDto();
 		BeanUtils.copyProperties(userEntity, userDto2);
 		return userDto2;
+	}
+
+	@Override
+	public UserDto getUserByID(String id) {
+		UserEntity userEntity = userRepository.findByUserId(id);
+		if (userEntity == null) {
+			throw new UsernameNotFoundException("User is not availabe with this username");
+		}
+		UserDto userDto2 = new UserDto();
+		BeanUtils.copyProperties(userEntity, userDto2);
+		return userDto2;
+	}
+
+	@Override
+	public UserDto updateUser(UserDto userDto, String userId) {
+		UserEntity userEntity = userRepository.findByUserId(userId);
+		if (userEntity == null) {
+			throw new UserServiceException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
+		}
+		userEntity.setFirstName(userDto.getFirstName());
+		userEntity.setLastName(userDto.getLastName());
+
+		UserEntity updatedUser=userRepository.save(userEntity);
+		UserDto userDto1=new UserDto();
+		BeanUtils.copyProperties(updatedUser,userDto1);
+		return userDto1;
+	}
+
+	@Override
+	public List<UserDto> getUsers(int page, int limit) {
+		List<UserDto> userList=new ArrayList<>();
+		Pageable pageable = PageRequest.of(page, limit);
+		Page<UserEntity> usersPage=userRepository.findAll(pageable);
+		List<UserEntity> userEntities=usersPage.getContent();
+		for(UserEntity userEntity:userEntities)
+		{
+			UserDto userDto=new UserDto();
+			BeanUtils.copyProperties(userEntity,userDto);
+			userList.add(userDto);
+		}
+		return userList;
 	}
 
 }
